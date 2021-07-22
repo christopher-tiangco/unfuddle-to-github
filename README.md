@@ -15,6 +15,7 @@ Therefore, I need to copy these Unfuddle tickets into GitHub. However, due to sh
 
 ## How to use
 - Clone this repository: `git clone https://github.com/christopher-tiangco/unfuddle-to-github.git .`
+- Run `npm install`
 - Set Unfuddle/GitHub credentials and project info to `.env`
 - Using a text editor, open `index.js` and 
   - specify the `unfuddleTicketNumberStart` and `unfuddleTicketNumberEnd` which represents the "starting Unfuddle ticket" and the "last Unfuddle ticket" to copy over
