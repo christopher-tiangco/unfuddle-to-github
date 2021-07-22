@@ -29,7 +29,7 @@ Therefore, I need to copy these Unfuddle tickets into GitHub. However, due to sh
   - Resolution description
 - **Resolution descriptions** are added as the LAST comment of the GitHub issue
 - A hardcoded "5 second" delay is set when posting the comments into the GitHub issue
-- Every console messages printed out by the script are stored into a log file `unfuddle_to_github_<date/time ISO format>.log
+- Every console messages printed out by the script are stored into a log file `unfuddle_to_github_<date/time ISO format>.log`
 - The GitHub issue create gets automatically Closed after creation if the source Unfuddle ticket's status is either `Resolved` or `Closed`
 
 ## Limitations
