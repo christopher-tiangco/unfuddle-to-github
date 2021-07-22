@@ -41,12 +41,39 @@ const getGitHubLastIssueNumber = async () => {
     
     if (!_get(result, 'data[0].number')) {
         
-        throw new Error(`Missing GitHub Issue number...`);
+        throw new Error(`getGitHubLastIssueNumber(): Missing LAST GitHub Issue number...`);
         
     }
     
     return result.data[0].number;
 };
+
+const getUnfuddleLastIssueNumber = async () => {
+    
+    let apiEndpoint = `https://${config.unfuddle.subdomain}/api/${config.unfuddle.apiVersion}/projects/${config.unfuddle.projectId}/tickets`;
+    let result = {};
+        
+    result = await axios({
+        method: 'get',
+        url: apiEndpoint,
+        headers: {
+            'Accept': 'application/json',
+            'Authorization': unfuddle_auth,
+            'Content-Type': 'application/json',
+        },
+        data: JSON.stringify({
+            "limit": 1,
+        }),
+    });
+    
+    if (!_get(result, 'data[0].number')) {
+        
+        throw new Error(`getUnfuddleLastIssueNumber(): Missing LAST Unfuddle Issue number...`);
+        
+    }
+    
+    return result.data[0].number;
+}
 
 /**
  * If Unfuddle "starting" ticket number cannot be used in GitHub, stop the process.
@@ -60,6 +87,14 @@ const validateUnfuddleStartTicketNumber = async () => {
     if (unfuddleTicketNumberStart <= await getGitHubLastIssueNumber()) {
         
         throw new Error(`Cannot create GitHub issue for Unfuddle ticket #${unfuddleTicketNumberStart}. Adjust unfuddleTicketNumberStart to a higher value.`);
+    }
+    
+    let unfuddleLastIssueNumber = await getUnfuddleLastIssueNumber();
+    
+    if (unfuddleTicketNumberStart > unfuddleLastIssueNumber) {
+        
+        throw new Error(`Invalid unfuddleTicketNumberStart. Value is higher than the last Unfuddle ticket number ever created. Adjust unfuddleTicketNumberStart to a value less than or equal to ${unfuddleLastIssueNumber}`);
+        
     }
     
 };
@@ -142,6 +177,7 @@ const getUnfuddleTicketByNumber = async ticketNumber => {
             associatedComments.push(result.data.resolution_description);
         
         }
+    }
     
     return {
         ...ticketData,
@@ -224,7 +260,7 @@ const timeout = ms => { return new Promise(resolve => setTimeout(resolve, ms)); 
  * Adds comments to newly created GitHub issue
  * NOTE: 
  * - There's a 5 second delay for every comment that gets added in order to deal with GitHub's rate limiting
- * - If there's an error when adding a comment, then skip and continue on.
+ * - If there's an issue adding a comment, then skip and continue on.
 **/
 const addGitHubIssueComments = async (issueNumber, comments) => {
     
@@ -339,6 +375,6 @@ const start = async () => {
     const endDate = new Date();
     log(`[${endDate}]: End Unfuddle Ticket to GitHub issue copier.`);
     
-}
+};
 
 start();
