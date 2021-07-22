@@ -9,6 +9,6 @@ Simply moving the repository into GitHub and start using it for new issues won't
 Therefore, I need to copy these Unfuddle tickets into GitHub. However, due to sheer amount of tickets that have been created in Unfuddle over the years (estimated around 3000+), it is going to take months, if not years to manually copy them by hand. Thus, this tool was created so that this process can be automated and can be ran 24/7 until it's done.
 
 ## Requirements
-- NodeJS v9.11.1
+- NodeJS v9.11.1 (npm v5.6.0)
 - Unfuddle account with "read" access to the project
 - GitHub account with CRUD access to the project
