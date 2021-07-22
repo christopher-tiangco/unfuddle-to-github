@@ -11,6 +11,10 @@ const unfuddle_auth = 'Basic ' + Buffer.from(`${config.unfuddle.username}:${conf
 const fileStream = fs.createWriteStream("unfuddle_to_github_" + (new Date().toISOString()).replace(/:/g, '_') + ".log"); // Create a new log file
 const newGitHubIssueLabels = ["From Unfuddle"];
 
+const gitHubTitleprefixOnMissingUnfuddleTicket = 'Missing Unfuddle Ticket#';
+const gitHubDescOnMissingUnfuddleTicket = 'N/A';
+const gitHubStatusOnMissingUnfuddleTicket = 'closed';
+
 /**
  * Writes to the current log file
 **/
@@ -67,6 +71,9 @@ const getUnfuddleTicketByNumber = async ticketNumber => {
     
     let apiEndpoint = `https://${config.unfuddle.subdomain}/api/${config.unfuddle.apiVersion}/projects/${config.unfuddle.projectId}/tickets/by_number/${ticketNumber}`;
     let result = {};
+    let ticketData = {};
+    let associatedComments = [];
+    let unfuddleTicketExists = false;
     
     try {
         
@@ -79,45 +86,62 @@ const getUnfuddleTicketByNumber = async ticketNumber => {
             }
         });
         
+        unfuddleTicketExists = true;
+        
     } catch (e) {
         
-        throw new Error(`Error getting Unfuddle Ticket #${ticketNumber}. Message: ${e.message}`);
+        // If Unfuddle ticket is not found due to 404, it might be because the ticket was deleted in the past. Therefore, create a "placeholder" GitHub issue instead
+        if (e.response.status === 404) {
+            
+            log(`WARNING: Missing Unfuddle Ticket #${ticketNumber}. Creating a placeholder GitHub issue instead.`);
+            
+        } else {
+            
+            throw new Error(`Error getting Unfuddle Ticket #${ticketNumber}. Message: ${e.message}`);    
+            
+        }
         
     }
     
-    if (!_get(result, 'data.id')) {
+    if (unfuddleTicketExists) {
+    
+        if (!_get(result, 'data.id')) {
+            
+            throw new Error(`Missing Unfuddle Ticket Id @ ticketNumber# ${ticketNumber}`);
+            
+        }
         
-        throw new Error(`Missing Unfuddle Ticket Id @ ticketNumber# ${ticketNumber}`);
+        if (!_get(result, 'data.summary')) {
+            
+            throw new Error(`Missing Unfuddle Ticket name @ ticketNumber# ${ticketNumber}`);
+            
+        }
+        
+        if (!_get(result, 'data.status')) {
+            
+            throw new Error(`Missing Unfuddle Ticket status @ ticketNumber# ${ticketNumber}`);
+            
+        }
         
     }
     
-    if (!_get(result, 'data.summary')) {
-        
-        throw new Error(`Missing Unfuddle Ticket name @ ticketNumber# ${ticketNumber}`);
-        
+    ticketData = {
+        id: (unfuddleTicketExists) ? result.data.id : null,
+        title: (unfuddleTicketExists) ? result.data.summary : `${gitHubTitleprefixOnMissingUnfuddleTicket} ${ticketNumber}`, 
+        description: (unfuddleTicketExists && _get(result, 'data.description')) ? result.data.description : gitHubDescOnMissingUnfuddleTicket,
+        status: (unfuddleTicketExists) ? result.data.status : gitHubStatusOnMissingUnfuddleTicket,
     }
     
-    if (!_get(result, 'data.status')) {
+    if (unfuddleTicketExists) {
         
-        throw new Error(`Missing Unfuddle Ticket status @ ticketNumber# ${ticketNumber}`);
-        
-    }
+        associatedComments = await getUnfuddleTicketCommentsById(result.data.id, ticketNumber);
     
-    let ticketData = {
-        id: result.data.id,
-        title: result.data.summary, 
-        description: (result.data.description) ? result.data.description : '',
-        status: result.data.status,
-    }
-    
-    let associatedComments = await getUnfuddleTicketCommentsById(result.data.id, ticketNumber);
-    
-    // If there's a resolution description, append it as the last comment
-    if (_get(result, 'data.resolution_description') && result.data.resolution_description.trim() !== '') {
+        // If there's a resolution description, append it as the last comment
+        if (_get(result, 'data.resolution_description') && result.data.resolution_description.trim() !== '') {
         
-        associatedComments.push(result.data.resolution_description);
+            associatedComments.push(result.data.resolution_description);
         
-    }
+        }
     
     return {
         ...ticketData,
