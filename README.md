@@ -34,4 +34,4 @@ Therefore, I need to copy these Unfuddle tickets into GitHub. However, due to sh
 
 ## Limitations
 - Not ALL the data about the Unfuddle ticket are copied over. Examples of data NOT copied over are: Ticket author name, Comment author name, associated commits, etc. See **Additional Notes** above for listing of what are copied over
-- If the "starting Unfuddle ticket number" `unfuddleTicketNumberStart` already exists in the GitHub project, running the script will throw an error
+- If the "starting Unfuddle ticket number" `unfuddleTicketNumberStart` already exists in the GitHub project, running the script will throw an error. Use a "starting Unfuddle ticket number" that doesn't exist in the GitHub project.
