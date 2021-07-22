@@ -18,7 +18,7 @@ Therefore, I need to copy these Unfuddle tickets into GitHub. However, due to sh
 - Set Unfuddle/GitHub credentials and project info to `.env`
 - Using a text editor, open `index.js` and 
   - specify the `unfuddleTicketNumberStart` and `unfuddleTicketNumberEnd` which represents the "starting Unfuddle ticket" and the "last Unfuddle ticket" to copy over
-  - (Optional) Specify the label(s) to assign to the new GitHub issues that will be created
+  - (Optional) Specify the label(s) to assign to the new GitHub issues that will be created by modifying the `newGitHubIssueLabels` array
 - Run the script: `node index`
 
 ## Additional Notes
