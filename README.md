@@ -31,7 +31,7 @@ Therefore, I need to copy these Unfuddle tickets into GitHub. However, due to sh
 - A hardcoded "5 second" delay is set when posting the comments into the GitHub issue
 - Every console messages printed out by the script are stored into a log file `unfuddle_to_github_<date/time ISO format>.log`
 - The GitHub issue create gets automatically Closed after creation if the source Unfuddle ticket's status is either `Resolved` or `Closed`. Otherwise, it will be left in `Open` status
-- If an error occurs while fetching of associated comments to an Unfuddle ticket OR when adding comments into a GitHub issue, the process will NOT stop.
+- If an error occurs while fetching the associated comments from an Unfuddle ticket OR when adding comments into a GitHub issue, the process will NOT stop.
 
 ## Limitations
 - Not ALL the data about the Unfuddle ticket are copied over. Examples of data NOT copied over are: Ticket author name, Comment author name, associated commits, etc. See **Additional Notes** above for listing of what are copied over
