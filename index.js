@@ -350,7 +350,10 @@ const start = async () => {
             
             let unfuddleData = await getUnfuddleTicketByNumber(i);
             
-            await createGitHubIssueFromUnfuddleTicket(unfuddleData, i);
+            await Promise.all([ // Avoid Abuse Rate limit with GitHub by setting 5 second delay after API call
+                createGitHubIssueFromUnfuddleTicket(unfuddleData, i),
+                timeout(5000),
+            ]);
             
             if (unfuddleData.comments.length > 0) {
                 
@@ -360,7 +363,7 @@ const start = async () => {
             
             if (["closed", "resolved"].indexOf(unfuddleData.status) > -1) {
                 
-                await Promise.all([
+                await Promise.all([ // Avoid Abuse Rate limit with GitHub by setting 5 second delay after API call
                     closeGitHubIssueByNumber(i),
                     timeout(5000),
                 ]);
