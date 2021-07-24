@@ -360,7 +360,10 @@ const start = async () => {
             
             if (["closed", "resolved"].indexOf(unfuddleData.status) > -1) {
                 
-                await closeGitHubIssueByNumber(i);
+                await Promise.all([
+                    closeGitHubIssueByNumber(i),
+                    timeout(5000),
+                ]);
                 
             }
         }
